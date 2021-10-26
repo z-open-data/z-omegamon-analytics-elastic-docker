@@ -1,0 +1,8 @@
+# PDF build artifacts
+**/out
+*.pkglist
+*~
+# Temporary files (any file name ending in a tilda)
+*~
+# Misc
+Thumbs.db

@@ -1,0 +1,21 @@
+{
+  "index_patterns": ["omegamon-*"],
+  "template": {
+    "settings": {
+      "lifecycle": {
+        "name": "omegamon-ilm-policy"
+      },
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "dynamic_templates": [ {
+        "strings": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      } ]
+    }
+  }
+}
