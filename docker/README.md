@@ -53,6 +53,16 @@ To start using the dashboards in a Docker container:
 
     The `-v` option creates a named volume for the container directory that stores Elasticsearch indices, rather than creating a volume with a non-semantic generated ID. Semantic names can make volumes easier to manage. For example, to remove this volume later, rather than having to identify and refer to the corresponding volume ID, you can refer to it by name: `docker volume rm elastic-data`.
 
+    **Recommendations:**
+
+    -   Do not share a volume between containers that are based on this image.
+
+        If you start more than one container based on this image on the same Docker host, then use a different volume for each container. You might choose to use a volume naming convention that corresponds to container names.
+
+    -  When you remove a container that is based on this image, also remove its volume.
+
+       Unless you purposefully, deliberately want to do so (for example, you want to keep your own data that you have forwarded from your own systems), and you understand the related issues, such as the compatibility of Elasticsearch index data formats between versions, do not reuse an existing volume for a new container.
+
 5.  Wait: for the Docker image to download, for the container to start, and then for the container to initialize Elastic with the supplied dashboards and data. Depending on your connection the web, the Docker image might take several minutes to download. After that, the container might take another minute to initialize, depending on your Docker host.
 
 6.  Browse to the following Kibana URL:
@@ -70,6 +80,27 @@ When the container starts, it loads data into Elastic. Kibana allows you to view
 
 If your web browser does not display a list of Kibana dashboards, or you click a dashboard and the dashboard contains no data, or you experience some other problem, see “Troubleshooting”.
 
+## Upgrading from an earlier version of this repository
+
+If you have an old Docker container based on an earlier version of this repository, and you want to upgrade to a new container, consider using the following steps (these are recommendations only; vary them depending on your needs):
+
+1.  Stop and remove the old container. Example:
+
+    ````
+    docker rm -f z-omegamon-analytics-elastic
+    ````
+2.  Remove the volume used by the old container. Example (depending on the volume name you used for the old container):
+
+    ````
+    docker volume rm elastic-data
+    ````
+
+    **Tip:** To remove unused volumes without referring to specific volume names, use `docker volume prune`.
+
+    If you do not remove the volume, and you specify the same volume name when starting a new container, then the new container will use the same volume, with data from the old container. Reusing that volume might cause issues with the new container, for a variety of reasons, such as differences in the Elasticsearch index data format between versions.
+
+3.  Rebuild the Docker image from the updated repository, and then start a new container. For details, see "Getting started".
+
 ## Troubleshooting and support
 
 Before seeking support for this image, please ensure that you can successfully run the Docker “hello world” example described in the Docker documentation. Please do not use the support contact details provided here for general Docker issues.
@@ -81,6 +112,16 @@ docker logs z-omegamon-analytics-elastic
 ```
 
 then contact your local Docker expert or IBM Software Support.
+
+### Common issues
+
+#### Elasticsearch error: IndexFormatTooNewException (Format version is not supported)
+
+**Explanation:** Elasticsearch has encountered indices in a format version that is not supported by this version of Elasticsearch.
+
+**Probable cause:** A new Docker container has been started. The new container uses the same volume as this container (the container in which this error occurred). The new container uses a more recent version of Elasticsearch. Elasticsearch in the new container has loaded data into the same volume (the same directory, the same indices) used by this container. Elasticsearch in this container does not support the index format used by the newer version.
+
+**Recommended action:** Do not share volumes between containers. Stop and remove both containers. Remove the volume that has been "polluted" by the new data. Start new containers using a separate volume for each container.
 
 ## Tips for new Docker users
 
