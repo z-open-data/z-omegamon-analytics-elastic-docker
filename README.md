@@ -116,7 +116,13 @@ The following instructions are also useful for understanding the Docker image, w
 Import the saved objects in the `kibana/export.ndjson` file into Kibana.
 
 Either:
--   In the Kibana UI, select Management ► Stack Management ► Kibana: Saved Objects ► Import
+-   In the Kibana UI:
+    1.  Select Management ► Stack Management ► Kibana: Saved Objects ► Import
+    2.  Select the following import options:
+        -  Check for existing objects
+           -  Automatically overwrite conflicts
+    3. Click **Import**
+
 -   Use the Kibana import saved objects API
 
 **Tip:** Rather than importing into the default space, import into a Kibana space that you have created specifically for these dashboards.
@@ -183,11 +189,44 @@ Pinned filters in Kibana are useful to maintain consistent filtering when switch
 
 For example, some dashboards can be usefully filtered by the `job_name` field, so it makes sense for users to pin a filter for `job_name`. However, the data for other dashboards does not include a `job_name` field. For those dashboards, by default, a `job_name` filter causes the dashboard visualizations to display "No results found".
 
-To ignore a filter if the field is not in the index pattern, switch on the `courier:ignoreFilterIfFieldNotInIndex` setting.
+To ignore a filter if the field is not in the index pattern, switch on the `courier:ignoreFilterIfFieldNotInIndex` setting. In the Kibana UI:
+
+1.  Select Management ► Stack Management ► Kibana: Advanced Settings
+2.  Scroll to, or search for, or select, the **Search** category
+3.  Set **Ignore filter(s)** to **On**
 
 ### Configure Logstash to listen for data
 
-Copy the `logstash/pipeline/10-omegamon-tcp-to-local-elasticsearch.conf` file to the `/etc/logstash/conf.d/` directory.
+This repository contains a Logstash pipeline configuration ("config") file, `logstash/pipeline/10-omegamon-tcp-to-local-elasticsearch.conf`, that configures Logstash to listen on a TCP port for JSON Lines data from OMEGAMON Data Provider, and then forwards the data to Elasticsearch on the same computer.
+
+How you use that config file depends on your Elastic Stack installation and your local site practices for configuring Logstash pipelines.
+
+#### Single or multiple Logstash pipelines?
+
+Before proceeding, you need to know whether your instance of Logstash is for use only with this repository or is also used for other purposes, other inputs. Specifically, you need to know whether your use of Logstash involves a *single pipeline* or *multiple pipelines*.
+
+If you have installed a new instance of Elastic Stack as a sandbox environment for testing this repository, then you can use a single Logstash pipeline.
+
+However, if you are using this repository with an existing instance of Elastic Stack that already has other inputs, then it is more likely that you will need to use multiple pipelines.
+
+#### Single pipeline
+
+If your instance of Logstash is for use only with this repository, then you can delete the contents of the default Logstash config directory, and then copy the supplied config file into that directory.
+
+For example:
+
+1.  Delete the contents of the `/etc/logstash/conf.d/` directory.
+
+    The default Logstash pipeline directory path depends on your platform.
+
+2.  Copy the `logstash/pipeline/10-omegamon-tcp-to-local-elasticsearch.conf` file to the `/etc/logstash/conf.d/` directory.
+
+
+#### Multiple pipelines
+
+For information about configuring multiple pipelines, see the [Logstash documentation](https://www.elastic.co/guide/en/logstash/7.14/multiple-pipelines.html).
+
+### Refresh the Logstash config
 
 Unless you have configured Logstash to automatically detect new pipeline configurations, stop and then restart Logstash.
 
