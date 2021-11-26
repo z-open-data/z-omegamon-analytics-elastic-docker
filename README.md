@@ -19,6 +19,8 @@ This repository contains:
 -   Sample data in JSON Lines format
 -   Source files for a Docker image that configures an Elastic Stack instance with all of the above in a ready-to-use container
 
+![Overview](readme-overview.svg)
+
 ## Getting started
 
 To start using the sample dashboards, choose one of the following options:
