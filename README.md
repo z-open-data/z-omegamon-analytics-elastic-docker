@@ -29,7 +29,7 @@ To start using the sample dashboards, choose one of the following options:
 
     You can immediately start exploring the dashboards with the sample data. The Docker container is also preconfigured to listen for OMEGAMON attributes in JSON Lines format over TCP from IBM Z OMEGAMON Data Provider.
 
-    See the [`docker/README.md`](docker/README.md) file.
+    See the [`docker`](docker/README.md) directory.
 
 -   Configure an existing Elastic Stack instance.
 
@@ -141,9 +141,10 @@ curl -X PUT -H "Content-Type: application/json" -d @omegamon-ilm-policy.json "ht
 
 **Notes:**
 
--   The supplied policy definition has an active Delete phase that deletes indices after 30 days.
--   Using this policy means that the sample data will be deleted 30 days after you load it into Elasticsearch. (The age of the events in the sample data is not relevant. The lifecycle clock starts when an index is created, regardless of the event time stamps.)
--   If you *don't* configure a lifecycle policy, and you keep forwarding data to this Elasticsearch instance, then you will eventually run out of disk space.
+-   The supplied policy has an active Delete phase that deletes indices after 30 days.
+-   Using this policy means that the sample data will be deleted 30 days after you load it into Elasticsearch. The age of the events in the sample data is not relevant. The lifecycle clock starts when an index is created, regardless of the event time stamps.
+-   If you *don't* configure a policy, and you keep forwarding data to this Elasticsearch instance, then you will eventually run out of disk space.
+-   The supplied policy is an example only. Configure a policy that matches your requirements and available disk space.
 -   For details on creating index lifecycle policies and associating them with indices, see the [Elastic Stack ILM documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-management.html).
 
 ### Create an Elasticsearch index template
