@@ -198,7 +198,7 @@ To ignore a filter if the field is not in the index pattern, switch on the `cour
 2.  Scroll to, or search for, or select, the **Search** category
 3.  Set **Ignore filter(s)** to **On**
 
-### Configure Logstash to listen for data
+### Configure Logstash
 
 This repository contains a Logstash pipeline configuration ("config") file, `logstash/pipeline/10-omegamon-tcp-to-local-elasticsearch.conf`, that configures Logstash to listen on a TCP port for JSON Lines data from OMEGAMON Data Provider, and then forwards the data to Elasticsearch on the same computer.
 
@@ -228,6 +228,28 @@ For example:
 #### Multiple pipelines
 
 For information about configuring multiple pipelines, see the [Logstash documentation](https://www.elastic.co/guide/en/logstash/7.14/multiple-pipelines.html).
+
+#### Elasticsearch index names
+
+The supplied Logstash config uses the following `index` option to set Elasticsearch index names:
+
+```ruby
+index => "omegamon-%{table_name}-%{+YYYY.MM.dd}"
+```
+
+where `table_name` is a field in the incoming JSON data, with a value such as `ascpuutil`.
+
+The sample dashboards use corresponding table-specific index patterns, such as `omegamon-ascpuutil-*`.
+
+This `index` option value creates indices per table, per day.
+
+*Per-day* indices are not a requirement. You can adjust the supplied Logstash config to use index names that match your site-specific practices. For example, you might perform rollover with a data stream or an index alias.
+
+The only restriction is that, if you want to use the supplied sample dashboards, the index names must match the per-table `omegamon-%{table_name}-*` index patterns used by the dashboards.
+
+*Per-table* indices avoid mapping conflicts (fields with the same names but different data types in different tables) and mapping explosion (defining too many fields in an index).
+
+To help you explore and experiment with the data, the supplied saved objects include an `omegamon-*` index pattern that searches data across all tables.
 
 ### Refresh the Logstash config
 
@@ -308,20 +330,6 @@ http://localhost:5601/s/omegamon/app/dashboards#/view/d24954f0-a7e6-11eb-b38d-7b
 -   The dashboard developers recommend the Chrome web browser.
 
 Your web browser should display a "home" dashboard that is an entry point to the other sample dashboards. Click a dashboard and begin exploring the data. For details on using Kibana, see the [Kibana User's Guide](https://www.elastic.co/guide/en/kibana/7.14/).
-
-## Elasticsearch index names and Kibana index patterns
-
-The supplied Logstash config uses the following `index` option to set Elasticsearch index names:
-
-```ruby
-index => "omegamon-%{table_name}-%{+YYYY.MM.dd}"
-```
-
-where `table_name` is a field in the incoming JSON data, with a value such as `"ascpuutil"`.
-
-The sample dashboards use corresponding table-specific index patterns, such as `omegamon-ascpuutil-*`.
-
-To help you explore and experiment with the data, the supplied saved objects include an `omegamon-*` index pattern that searches data across all tables.
 
 ## Deleting the sample data
 
@@ -409,3 +417,17 @@ To visualize your own data in the sample dashboards:
         interval: 0             
         destination: [pds, open]
     ```
+
+## Change history
+
+History of significant updates (*yyyy-mm-dd*).
+
+### 2021-12-20
+
+Filter added to the Data Inventory dashboard:
+
+```
+product_code: km5
+```
+
+Some visualizations in this dashboard are specific to data from the z/OS monitoring agent (`km5`). The filter avoids presenting data from other agents that are not appropriate to these visualizations.
