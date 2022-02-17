@@ -1,6 +1,6 @@
 # :no_entry: DEPRECATED
 
-This repository has been replaced by [z-open-data/z-elastic-samples](https://z-open-data.github.io/odp-elastic-samples/).
+This repository has been replaced by [z-open-data/odp-elastic-samples](https://z-open-data.github.io/odp-elastic-samples/).
 
 # Sample Elastic Kibana dashboards for IBM Z OMEGAMON Data Provider
 
